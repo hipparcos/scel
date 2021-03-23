@@ -1,0 +1,4 @@
+* scél
+
+/scél/ \sʲkʲeːl\ is an implementation of a subset of the [[http://paulgraham.com/bel.html][Bel]]
+programming language in C.
