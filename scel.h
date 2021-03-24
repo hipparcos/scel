@@ -17,16 +17,18 @@
  */
 typedef int64_t scel_t;
 
-/** scel_nil: the nil value. */
+/** SCEL_NIL: the nil value. */
 extern const scel_t SCEL_NIL;
 
-/** scel_max_fixnum: the max fixnum storable as immediate. */
+/** SCEL_MAX_FIXNUM: the max fixnum storable as immediate. */
 extern const int64_t SCEL_MAX_FIXNUM;
-/** scel_max_fixnum: the min fixnum storable as immediate. */
+/** SCEL_MAX_FIXNUM: the min fixnum storable as immediate. */
 extern const int64_t SCEL_MIN_FIXNUM;
 
 /** scel_is_immediate: tell if VAL is an immediate value. */
 extern bool scel_is_immediate(scel_t val);
+/** scel_is_heap_allocated: tell if VAL is a pointer to the heap. */
+extern bool scel_is_heap_allocated(scel_t val);
 /** scel_is_codepoint: tell if VAL is an unicode codepoint. */
 extern bool scel_is_codepoint(scel_t val);
 /** scel_is_fixnum: tell if VAL is a fixnum. */
@@ -35,6 +37,8 @@ extern bool scel_is_fixnum(scel_t val);
 extern bool scel_is_nil(scel_t val);
 /** scel_is_single_float: tell if VAL is a single float. */
 extern bool scel_is_single_float(scel_t val);
+/** scel_is_pair: tell if VAL points to a pair. */
+extern bool scel_is_pair(scel_t val);
 
 /** scel_make_codepoint: make scel from codepoint. */
 extern scel_t scel_make_codepoint(codepoint cp);
@@ -42,6 +46,13 @@ extern scel_t scel_make_codepoint(codepoint cp);
 extern scel_t scel_make_fixnum(int64_t num);
 /** scel_make_single_float: make scel from single float. */
 extern scel_t scel_make_single_float(float flt);
+
+/** scel_tag_pair: tag PTR as a pair.
+ ** Do not allocate anything nor check that the pointer is valid. */
+extern scel_t scel_tag_pair(const void *ptr);
+
+/** scel_untag: set the tag part to 0. */
+extern scel_t scel_untag(scel_t ptr);
 
 /** scel_as_codepoint: return VAL as a codepoint. */
 extern codepoint scel_as_codepoint(scel_t val);

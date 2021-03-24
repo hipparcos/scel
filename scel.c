@@ -1,9 +1,10 @@
+
 #include "scel.h"
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
 
 /* Internal representation of a scel_t:
  *  x payload bits
@@ -36,15 +37,20 @@ const int64_t  FIXNUM_MIN       = -(1LL << (FIXNUM_BITS-1));   // 2^n
 const int64_t SCEL_MAX_FIXNUM = FIXNUM_MAX;
 const int64_t SCEL_MIN_FIXNUM = FIXNUM_MIN;
 
+/* This implementation targets the x86_64 architecture.
+ * It is assumed that pointers are 8 bytes aligned.
+ * The lowest 3 bits of pointers are used to tag them so they can be
+ * distinguished fron immediate values. */
+const unsigned TAG_MASK = 0x7; // The 3 lowest bits.
+
 /* Constants about other immediate values.
  * Those are tagged so needs to be shifted to the right to be used and
  * Shifted to the left to be encoded.
  * The least significant byte hold the tag, all other bytes are
  * dedicated to the payload. */
-const unsigned IMMEDIATE_TAG_MASK  = 0x7; // The 3 lowest bits...
 const unsigned IMMEDIATE_TAG       = 0x7; // ...are ones.
 const unsigned IMMEDIATE_BIT_SHIFT = 1 * SCEL_BYTE;
-const unsigned IMMEDIATE_TYPE_MASK = 0xff | IMMEDIATE_TAG_MASK;
+const unsigned IMMEDIATE_TYPE_MASK = 0xff | TAG_MASK;
 
 /* The nil type has only a single value.
  * All representation are equivalent. */
@@ -64,10 +70,19 @@ const unsigned SINGLE_FLOAT_BITS = 32;
 const unsigned CODEPOINT_TAG  = 0x17 | IMMEDIATE_TAG; // 23 = b101111
 const unsigned CODEPOINT_BITS = 21; // Max unicode codepoint length.
 
+/* Tags for heap-allocated objects. */
+const unsigned PAIR_TAG = 0x5; // 5 = b101
+
 bool
 scel_is_immediate(scel_t val)
 {
-  return IMMEDIATE_TAG == (val & IMMEDIATE_TAG_MASK) || scel_is_fixnum(val);
+  return IMMEDIATE_TAG == (val & TAG_MASK) || scel_is_fixnum(val);
+}
+
+bool
+scel_is_heap_allocated(scel_t val)
+{
+  return !scel_is_immediate(val);
 }
 
 bool
@@ -141,4 +156,23 @@ bool
 scel_is_codepoint(scel_t val)
 {
   return CODEPOINT_TAG == (val & IMMEDIATE_TYPE_MASK);
+}
+
+scel_t
+scel_tag_pair(const void *ptr)
+{
+  assert(((scel_t)ptr & TAG_MASK) == 0); // ensure ptr is aligned.
+  return (scel_t)ptr | PAIR_TAG;
+}
+
+bool
+scel_is_pair(scel_t val)
+{
+  return PAIR_TAG == (val & TAG_MASK);
+}
+
+scel_t
+scel_untag(scel_t ptr)
+{
+  return ptr & (~(scel_t)TAG_MASK);
 }

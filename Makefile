@@ -1,17 +1,25 @@
 CFLAGS=-Wall --std=c11
 
-all: repl
+all: test
 
 clean:
-	rm -rf scel.o scel-test
+	rm -rf \
+	  scel.o scel_test scel_test.o \
+	  heap.o heap_test heap_test.o
 .PHONY: clean
 
-test: scel_test
+test: heap_test scel_test
 	./scel_test
+	./heap_test
 .PHONY: test
+
+heap_test: heap_test.o heap.o scel.o
+	$(CC) -o heap_test heap_test.o heap.o scel.o
 
 scel_test: scel_test.o scel.o
 	$(CC) -o scel_test scel_test.o scel.o
 
-scel_test.p: scel.h
+heap.o: heap.c heap.h scel.h
+heap_test.o: heap.h testing.h
 scel.o: scel.c scel.h utf8.h
+scel_test.o: scel.h testing.h

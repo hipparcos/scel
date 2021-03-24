@@ -1,10 +1,10 @@
 #include <assert.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 
 #include "scel.h"
+#include "testing.h"
 
 static void
 test_fixnum(void)
@@ -14,6 +14,7 @@ test_fixnum(void)
   assert(scel_is_fixnum(s));
   assert(!scel_is_codepoint(s));
   assert(!scel_is_single_float(s));
+  assert(!scel_is_pair(s));
   assert(scel_as_fixnum(s) == 42);
   assert(scel_as_fixnum(scel_make_fixnum(42) + scel_make_fixnum(34)
 			) == 76L);
@@ -29,6 +30,7 @@ test_single_float(void)
   assert(scel_is_single_float(s));
   assert(!scel_is_codepoint(s));
   assert(!scel_is_fixnum(s));
+  assert(!scel_is_pair(s));
   assert(scel_as_single_float(s) == 3.14f);
 }
 
@@ -40,23 +42,30 @@ test_codepoint(void)
   assert(scel_is_codepoint(s));
   assert(!scel_is_fixnum(s));
   assert(!scel_is_single_float(s));
+  assert(!scel_is_pair(s));
   assert(scel_as_codepoint(s) == 97);
 }
 
-#define stringify(s) #s
-#define run(testname)				\
-  do {						\
-    printf(stringify(testname)"...");		\
-    test_##testname();				\
-    printf("PASS\n");				\
-  } while (0);
+static void
+test_pair(void)
+{
+  int *dummy = malloc(8);
+  scel_t s = scel_tag_pair(dummy);
+  assert(scel_is_pair(s));
+  assert(!scel_is_immediate(s));
+  assert(!scel_is_fixnum(s));
+  assert(!scel_is_single_float(s));
+  assert((int *)scel_untag(s) == dummy);
+  free(dummy);
+}
 
 int
 main (void)
 {
-  run(fixnum);
-  run(single_float);
-  run(codepoint);
+  run_test(fixnum);
+  run_test(single_float);
+  run_test(codepoint);
+  run_test(pair);
 
   return EXIT_SUCCESS;
 }
