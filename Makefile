@@ -19,7 +19,7 @@ heap_test: heap_test.o heap.o scel.o
 scel_test: scel_test.o scel.o
 	$(CC) -o scel_test scel_test.o scel.o
 
-heap.o: heap.c heap.h scel.h
+heap.o: heap.c heap.h scel.h result.h
 heap_test.o: heap.h testing.h
 scel.o: scel.c scel.h utf8.h
 scel_test.o: scel.h testing.h

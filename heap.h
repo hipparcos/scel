@@ -5,6 +5,7 @@
 
 #include "scel.h"
 #include "pair.h"
+#include "result.h"
 
 /** scel_heap_t: an opaque type pointing to the heap.
  ** The heap is a memory allocator responsible for tracking what is
@@ -13,32 +14,6 @@
  ** The garbage collection logic is not implemented yet and the heap
  ** is not growable. Allocation is done until the heap is exhausted. */
 typedef struct scel_heap scel_heap_t;
-
-/** scel_result_type: the type of an allocation result. */
-enum scel_result_type
-  {
-   SCEL_OK = 0,
-   SCEL_ERROR = -1,
-  };
-
-/** scel_error: allocation error code. */
-enum scel_error
-  {
-   SCEL_NO_ERROR = 0,
-   SCEL_INVALID_HEAP = 1,
-   SCEL_HEAP_EXHAUSTED,
-  };
-
-/** scel_result: the result of an allocation operation. */
-struct scel_result
-{
-  enum scel_result_type typ;
-  union
-  {
-    scel_t ok;
-    enum scel_error err;
-  };
-};
 
 /** SCEL_HEAP_MIN_BYTES: the min size of the heap in bytes. */
 extern const unsigned SCEL_HEAP_MIN_BYTES;
